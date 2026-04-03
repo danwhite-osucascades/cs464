@@ -1,0 +1,106 @@
+{
+  "title": "Bird Populations",
+  "description": "Put the birds in order by population (most common first).",
+  "items": [
+    {
+      "name": "House Sparrow",
+      "order": 1
+    },
+    {
+      "name": "European Starling",
+      "order": 2
+    },
+    {
+      "name": "Rock Pigeon",
+      "order": 3
+    },
+    {
+      "name": "Barn Swallow",
+      "order": 4
+    },
+    {
+      "name": "Red-billed Quelea",
+      "order": 5
+    },
+    {
+      "name": "Common Grackle",
+      "order": 6
+    },
+    {
+      "name": "American Robin",
+      "order": 7
+    },
+    {
+      "name": "Red-winged Blackbird",
+      "order": 8
+    },
+    {
+      "name": "Yellow-rumped Warbler",
+      "order": 9
+    },
+    {
+      "name": "Common Blackbird",
+      "order": 10
+    },
+    {
+      "name": "White Wagtail",
+      "order": 11
+    },
+    {
+      "name": "Song Sparrow",
+      "order": 12
+    },
+    {
+      "name": "Brown-headed Cowbird",
+      "order": 13
+    },
+    {
+      "name": "Canada Goose",
+      "order": 14
+    },
+    {
+      "name": "Mallard",
+      "order": 15
+    },
+    {
+      "name": "Great-tailed Grackle",
+      "order": 16
+    },
+    {
+      "name": "House Finch",
+      "order": 17
+    },
+    {
+      "name": "Northern Cardinal",
+      "order": 18
+    },
+    {
+      "name": "American Crow",
+      "order": 19
+    },
+    {
+      "name": "Black-capped Chickadee",
+      "order": 20
+    },
+    {
+      "name": "European Goldfinch",
+      "order": 21
+    },
+    {
+      "name": "Cliff Swallow",
+      "order": 22
+    },
+    {
+      "name": "Tree Sparrow",
+      "order": 23
+    },
+    {
+      "name": "Zebra Finch",
+      "order": 24
+    },
+    {
+      "name": "Common Waxbill",
+      "order": 25
+    }
+  ]
+}
