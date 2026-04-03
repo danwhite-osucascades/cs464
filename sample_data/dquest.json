@@ -1,0 +1,50 @@
+{
+    "title": "Dragon Quest Series",
+    "description": "Put the games in order by in-world chronology, not release date.",
+    "items": [
+        {
+            "name": "Dragon Quest 11",
+            "order": 1
+        },
+        {
+            "name": "Dragon Quest 3",
+            "order": 2
+        },
+        {
+            "name": "Dragon Quest",
+            "order": 3
+        },
+        {
+            "name": "Dragon Quest 2",
+            "order": 4
+        },
+        {
+            "name": "Dragon Quest 6",
+            "order": 5
+        },
+        {
+            "name": "Dragon Quest 4",
+            "order": 6
+        },
+        {
+            "name": "Dragon Quest 5",
+            "order": 7
+        },
+        {
+            "name": "Dragon Quest 7",
+            "order": 8
+        },
+        {
+            "name": "Dragon Quest 8",
+            "order": 9
+        },
+        {
+            "name": "Dragon Quest 9",
+            "order": 10
+        },
+        {
+            "name": "Dragon Quest 10",
+            "order": 11
+        }
+    ]
+}

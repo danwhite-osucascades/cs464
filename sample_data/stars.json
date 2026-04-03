@@ -1,0 +1,74 @@
+{
+  "title": "Stars",
+  "description": "Put the stars in order of distance from the Sun",
+  "stars": [
+    {
+      "name": "Sol",
+      "order": 0
+    },
+    {
+      "name": "Proxima Centauri",
+      "order": 1
+    },
+    {
+      "name": "Rigil Kentaurus & Toliman",
+      "order": 2
+    },
+    {
+      "name": "Barnard's Star",
+      "order": 3
+    },
+    {
+      "name": "Wolf 359",
+      "order": 4
+    },
+    {
+      "name": "Sirius",
+      "order": 5
+    },
+    {
+      "name": "Luyten 726-8",
+      "order": 6
+    },
+    {
+      "name": "Epsilon Eridani",
+      "order": 7
+    },
+    {
+      "name": "61 Cygni A, B, & C",
+      "order": 8
+    },
+    {
+      "name": "Procyon A & B",
+      "order": 9
+    },
+    {
+      "name": "Epsilon Indi",
+      "order": 10
+    },
+    {
+      "name": "Tau Ceti",
+      "order": 11
+    },
+    {
+      "name": "GJ 1061",
+      "order": 12
+    },
+    {
+      "name": "YZ Ceti",
+      "order": 13
+    },
+    {
+      "name": "Luyten's Star",
+      "order": 14
+    },
+    {
+      "name": "Teegarden's Star",
+      "order": 15
+    },
+    {
+      "name": "82 G Eridani",
+      "order": 16
+    }
+  ]
+}
