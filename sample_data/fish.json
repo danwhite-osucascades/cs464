@@ -1,4 +1,6 @@
 {
+    "title": "Fish",
+    "description": "Fish in Central Oregon ordered by average length.",
     "items": [
         {
             "name": "Brook Stickleback",
