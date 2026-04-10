@@ -13,6 +13,11 @@ import {
   Typography,
 } from '@mui/material';
 
+type Item = {
+  name: string;
+  order: number;
+};
+
 export default function Home() {
   return (
     <main>
@@ -20,3 +25,4 @@ export default function Home() {
     </main>
   );
 }
+
