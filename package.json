@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev:server": "next dev",
+    "dev": "tsx scripts/dev-local.ts dev:server",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
