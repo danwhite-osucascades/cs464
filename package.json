@@ -13,6 +13,7 @@
     "db:status": "supabase status",
     "db:seed:do": "tsx scripts/seed-database.ts",
     "db:seed": "tsx scripts/dev-local.ts db:seed:do",
+    "db:seed:remote": "dotenv -e .env.remote -- tsx scripts/seed-database.ts",
     "db:setup": "npm run db:start && npm run db:seed && npm run db:status"
   },
   "dependencies": {
@@ -30,6 +31,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv-cli": "^11.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.2.1",
     "tsx": "^4.7.0",
