@@ -16,6 +16,7 @@ import { Dataset, DatasetItem } from '@/types/data';
 
 export default function Home() {
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
   const datasets: Dataset[] = [birds, fish, planets]
   const { title, description, items } = datasets[selectedIndex];
 
@@ -60,7 +61,9 @@ export default function Home() {
             key={item.name}
             value={item}
             as="div"
-            style={{ position: 'relative' }}
+            style={{ position: 'relative', cursor: isDragging ? 'grabbing' : 'grab' }}
+            onDragStart={() => setIsDragging(true)}
+            onDragEnd={() => setIsDragging(false)}
           >
             <Card variant="outlined">
               <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2, py: '12px !important' }}>
