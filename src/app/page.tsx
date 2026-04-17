@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Box, Typography, Card, CardContent, Stack,
   Select, MenuItem, FormControl, InputLabel
@@ -15,8 +15,15 @@ import { DataFile } from '@/types/data';
 
 export default function Home() {
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const datasets: DataFile[] = [birds, fish, planets]
-  const { title, description, items } = datasets[selectedIndex];
+  const datasets: DataFile[] = [birds, fish, planets];
+  const { title, description } = datasets[selectedIndex];
+  const [shuffledItems, setShuffledItems] = useState(() => datasets[0].items);
+
+  useEffect(() => {
+    setShuffledItems(
+      [...datasets[selectedIndex].items].sort(() => Math.random() - 0.5)
+    );
+  }, [selectedIndex]);
 
   return (
     <Box sx={{ maxWidth: 600, mx: 'auto', mt: 4, px: 2 }}>
@@ -42,7 +49,7 @@ export default function Home() {
 
       {/* Item cards */}
       <Stack spacing={1}>
-        {items.map((item, index) => (
+        {shuffledItems.map((item, index) => (
           <Card key={`${index}-${item.name}`} variant="outlined">
             <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2, py: '12px !important' }}>
               <DragHandleIcon color="action" />
