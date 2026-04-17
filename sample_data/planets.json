@@ -1,0 +1,42 @@
+{
+    "title": "Planets",
+    "description": "Put the planets in order by distance from the sun (closest first).",
+    "items": [
+        {
+            "name": "Mercury",
+            "order": 1
+        },
+        {
+            "name": "Venus",
+            "order": 2
+        },
+        {
+            "name": "Earth",
+            "order": 3
+        },
+        {
+            "name": "Mars",
+            "order": 4
+        },
+        {
+            "name": "Jupiter",
+            "order": 5
+        },
+        {
+            "name": "Saturn",
+            "order": 6
+        },
+        {
+            "name": "Uranus",
+            "order": 7
+        },
+        {
+            "name": "Neptune",
+            "order": 8
+        },
+        {
+            "name": "Pluto",
+            "order": 9
+        }
+    ]
+}
