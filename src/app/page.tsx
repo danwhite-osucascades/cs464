@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Box, Typography, Card, CardContent, Stack,
   Select, MenuItem, FormControl, InputLabel
@@ -13,10 +13,53 @@ import planets from '../../data/planets.json';
 
 import { DataFile } from '@/types/data';
 
+function shuffleArray<T>(array: T[]) {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
 export default function Home() {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const datasets: DataFile[] = [birds, fish, planets]
   const { title, description, items } = datasets[selectedIndex];
+  const [shuffledItems, setShuffledItems] = useState(items);
+  const dragItemIndex = useRef<number | null>(null);
+  const [activeDragIndex, setActiveDragIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    setShuffledItems(shuffleArray(items));
+  }, [items]);
+
+  const handleDragStart = (index: number) => {
+    dragItemIndex.current = index;
+    setActiveDragIndex(index);
+  };
+
+  const handleDragEnter = (index: number) => {
+    const fromIndex = dragItemIndex.current;
+    if (fromIndex === null || fromIndex === index) {
+      return;
+    }
+
+    setShuffledItems((current) => {
+      const updated = [...current];
+      const [movedItem] = updated.splice(fromIndex, 1);
+      updated.splice(index, 0, movedItem);
+      return updated;
+    });
+
+    dragItemIndex.current = index;
+    setActiveDragIndex(index);
+  };
+
+  const handleDrop = () => {
+    dragItemIndex.current = null;
+    setActiveDragIndex(null);
+  };
 
   return (
     <Box sx={{ maxWidth: 600, mx: 'auto', mt: 4, px: 2 }}>
@@ -42,8 +85,17 @@ export default function Home() {
 
       {/* Item cards */}
       <Stack spacing={1}>
-        {items.map((item, index) => (
-          <Card key={`${index}-${item.name}`} variant="outlined">
+        {shuffledItems.map((item, index) => (
+          <Card
+            key={`${index}-${item.name}`}
+            variant="outlined"
+            draggable
+            onDragStart={() => handleDragStart(index)}
+            onDragEnter={() => handleDragEnter(index)}
+            onDragOver={(event) => event.preventDefault()}
+            onDrop={handleDrop}
+            sx={{ cursor: 'grab', opacity: activeDragIndex === index ? 0.6 : 1 }}
+          >
             <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2, py: '12px !important' }}>
               <DragHandleIcon color="action" />
               <Typography variant="body1">{item.name}</Typography>
