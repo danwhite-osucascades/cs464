@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import {
   Box, Typography, Card, CardContent, Stack,
   Select, MenuItem, FormControl, InputLabel
@@ -13,10 +13,23 @@ import planets from '../../data/planets.json';
 
 import { DataFile } from '@/types/data';
 
+function shuffle<T>(array: T[]): T[] {
+  const arr = [...array]
+  for (let i = arr.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]]
+
+  }
+
+  return arr
+}
+
 export default function Home() {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const datasets: DataFile[] = [birds, fish, planets]
   const { title, description, items } = datasets[selectedIndex];
+
+  const shuffledItems = useMemo (() => shuffle(items), [selectedIndex])
 
   return (
     <Box sx={{ maxWidth: 600, mx: 'auto', mt: 4, px: 2 }}>
@@ -42,7 +55,7 @@ export default function Home() {
 
       {/* Item cards */}
       <Stack spacing={1}>
-        {items.map((item, index) => (
+        {shuffledItems.map((item, index) => (
           <Card key={`${index}-${item.name}`} variant="outlined">
             <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2, py: '12px !important' }}>
               <DragHandleIcon color="action" />
