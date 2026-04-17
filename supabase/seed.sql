@@ -2,7 +2,7 @@ DO $$
 DECLARE
   list_id uuid;
 BEGIN
--- Generated Seed Data
+-- Generated Seed Data (Sync with DataFile Interface)
 
 INSERT INTO lists (title, description) 
 VALUES ('Brawlhalla Legends', 'Put the legends in order by chronological order they were added to the Game') 

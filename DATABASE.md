@@ -24,7 +24,7 @@
 
 `npx supabase start` - Start the database services (this may take a minute at first). After starting it will give you a bunch of keys and urls.
 
-`edit your .env.local file` - Variables values are:
+`edit your .env.local file` - Variable values are:
 
 - NEXT_PUBLIC_SUPABASE_URL = Project url in 'APIs'.
 
