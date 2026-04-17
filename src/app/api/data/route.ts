@@ -1,36 +1,71 @@
-import path from 'path'
-import fs from 'fs/promises'
-import { DataFile } from '@/types/data'
-
-
-const dataDirectory = path.join(process.cwd(), "data")
+import { supabase } from '@/lib/supabaseClient'
+import { NextResponse } from 'next/server'
+import { DataFile, DataItem } from '@/types/data'
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const name = searchParams.get('name')
 
-    // query param containing name -> return specified file
     if (name) {
-        const filePath = path.join(dataDirectory, `${name}.json`)
-        try {
-            const content = await fs.readFile(filePath, 'utf-8')
-            return Response.json(JSON.parse(content))
-        } catch {
-            return Response.json({ error: `No dataset found for ${name}` }, { status: 404 })
+        const { data, error } = await supabase
+            .from('lists')
+            .select(`
+                title,
+                description,
+                items (
+                    name,
+                    display_order
+                )
+            `)
+            .ilike('title', name)
+            .single()
+
+        if (error || !data) {
+            return NextResponse.json({ error: `No dataset found for ${name}` }, { status: 404 })
         }
-    } 
+	
+	const response: DataFile = {
+	    title: data.title,
+	    description: data.description,
+	    items: data.items.map((item: any) => ({
+                name: item.name,
+                order: item.display_order
+            })).sort((a: DataItem, b: DataItem) => a.order - b.order)
+	}
 
-    // no query param
-
-    // get files
-    const files = (await fs.readdir(dataDirectory)).filter(f => f.endsWith('.json'))
-    const allData: Record<string, DataFile> = {}
-
-    // iterate through json files in dataDirectory 
-    for (const file of files){
-        const filePath = path.join(dataDirectory, file)
-        const content = await fs.readFile(filePath, 'utf-8')
-        allData[file.replace('.json', '')] = JSON.parse(content)
+        return NextResponse.json(data)
     }
-    return Response.json({datasets: allData})
+
+    const { data, error } = await supabase
+        .from('lists')
+        .select(`
+            id,
+            title,
+            description,
+            items (
+                name,
+                display_order
+            )
+        `)
+
+    if (error) {
+        return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    const allData = data.reduce((acc: any, list: any) => {
+        const key = list.title.toLowerCase().replace(/\s+/g, '-')
+        acc[key] = {
+            title: list.title,
+            description: list.description,
+            items: list.items
+	        .map((item: any) => ({
+                    name: item.name,
+                    order: item.display_order
+                }))
+                .sort((a: any, b: any) => a.display_order - b.display_order)
+        }
+        return acc
+    }, {})
+
+    return NextResponse.json({ datasets: allData })
 }
