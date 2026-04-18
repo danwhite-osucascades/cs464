@@ -15,3 +15,5 @@ export interface Dataset<T = DatasetItem> {
     description: string | null
     items: T[]
 }
+
+export type DatasetTitle = Omit<Dataset, 'description' | 'items'>
