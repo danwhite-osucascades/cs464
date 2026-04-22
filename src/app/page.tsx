@@ -6,6 +6,7 @@ import {
 } from '@mui/material';
 import DragHandleIcon from '@mui/icons-material/DragHandle';
 import { Reorder } from 'motion/react';
+import { Button } from "@mui/material";
 
 // sample data
 import birds from '../../data/bird_population.json';
@@ -26,6 +27,18 @@ export default function Home() {
     const shuffled = [...items].sort(() => Math.random() - 0.5);
     setShuffledItems(shuffled);
   }, [items]);
+
+  const verifyOrder = () => {
+    let valid = true
+    for(let i = 0; i < shuffledItems.length; i++){
+      if(shuffledItems[i].name !== items[i].name){
+        valid = false;
+        break;
+      }
+    }
+    if (valid) {alert("Order is correct, you win!");}
+    else {alert("Order is wrong, you lose!");}
+  }
 
   return (
     <Box sx={{ maxWidth: 600, mx: 'auto', mt: 4, px: 2 }}>
@@ -74,6 +87,26 @@ export default function Home() {
           </Reorder.Item>
         ))}
       </Reorder.Group>
+
+      {/* Submit Button */}
+      <Button type="button" 
+        onClick={verifyOrder} 
+        sx={{
+            mt: 3,
+            px: 4,
+            py: 1.5,
+            borderRadius: 2,
+            fontWeight: "bold",
+            textTransform: "none",
+            color:"white",
+            backgroundColor: "#1976d2",
+            "&:hover": {
+              backgroundColor: "#115293",
+        },
+      }}>
+        Submit!
+      </Button>
+
     </Box>
   );
 };
