@@ -1,22 +1,31 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
-  Box, Typography, Card, CardContent, Stack,
+  Box, Typography, Card, CardContent,
   Select, MenuItem, FormControl, InputLabel
 } from '@mui/material';
 import DragHandleIcon from '@mui/icons-material/DragHandle';
+import { Reorder } from 'motion/react';
 
 // sample data
 import birds from '../../data/bird_population.json';
 import fish from '../../data/fish.json';
 import planets from '../../data/planets.json';
 
-import { DataFile } from '@/types/data';
+import { Dataset, DatasetItem } from '@/types/data';
 
 export default function Home() {
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const datasets: DataFile[] = [birds, fish, planets]
+  const datasets: Dataset[] = [birds, fish, planets]
   const { title, description, items } = datasets[selectedIndex];
+
+  const [shuffledItems, setShuffledItems] = useState<DatasetItem[]>([]);
+  const [isDragging, setIsDragging] = useState(false);
+
+  useEffect(() => {
+    const shuffled = [...items].sort(() => Math.random() - 0.5);
+    setShuffledItems(shuffled);
+  }, [items]);
 
   return (
     <Box sx={{ maxWidth: 600, mx: 'auto', mt: 4, px: 2 }}>
@@ -41,16 +50,30 @@ export default function Home() {
       </Typography>
 
       {/* Item cards */}
-      <Stack spacing={1}>
-        {items.map((item, index) => (
-          <Card key={`${index}-${item.name}`} variant="outlined">
-            <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2, py: '12px !important' }}>
-              <DragHandleIcon color="action" />
-              <Typography variant="body1">{item.name}</Typography>
-            </CardContent>
-          </Card>
+      <Reorder.Group
+        as="div"
+        values={shuffledItems}
+        onReorder={setShuffledItems}
+        style={{ display: 'flex', flexDirection: 'column', gap: 8 }}
+      >
+        {shuffledItems.map((item) => (
+          <Reorder.Item
+            key={item.name}
+            value={item}
+            as="div"
+            style={{ position: 'relative' }}
+            onDragStart={() => setIsDragging(true)}
+            onDragEnd={() => setIsDragging(false)}
+          >
+            <Card variant="outlined" sx={{ cursor: isDragging ? 'grabbing' : 'grab' }}>
+              <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2, py: '12px !important' }}>
+                <DragHandleIcon color="action"/>
+                <Typography variant="body1">{item.name}</Typography>
+              </CardContent>
+            </Card>
+          </Reorder.Item>
         ))}
-      </Stack>
+      </Reorder.Group>
     </Box>
   );
 };
