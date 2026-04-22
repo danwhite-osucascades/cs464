@@ -92,7 +92,7 @@ export default function Home() {
         ))}
       </Reorder.Group>
 
-      {/* NEW: Check Order Button */}
+      {/*Check Order Button */}
       <Button
         variant="contained"
         fullWidth
@@ -102,7 +102,7 @@ export default function Home() {
         Check Order
       </Button>
 
-      {/* NEW: Feedback Messages */}
+      {/*Feedback Messages */}
       {result === "correct" && (
         <Alert severity="success" sx={{ mt: 2 }}>
           Correct order! Nicely done.
