@@ -6,6 +6,9 @@ import {
 } from '@mui/material';
 import DragHandleIcon from '@mui/icons-material/DragHandle';
 import { Reorder } from 'motion/react';
+import { Button, Alert } from '@mui/material';
+
+
 
 // sample data
 import birds from '../../data/bird_population.json';
@@ -22,10 +25,24 @@ export default function Home() {
   const [shuffledItems, setShuffledItems] = useState<DatasetItem[]>([]);
   const [isDragging, setIsDragging] = useState(false);
 
+  const [result, setResult] = useState<"correct" | "incorrect" | null>(null);
+
   useEffect(() => {
     const shuffled = [...items].sort(() => Math.random() - 0.5);
     setShuffledItems(shuffled);
+
+
+    setResult(null);
   }, [items]);
+
+
+  const checkOrder = () => {
+    const correct = shuffledItems.every(
+      (item, index) => item.name === items[index].name
+    );
+    setResult(correct ? "correct" : "incorrect");
+  };
+
 
   return (
     <Box sx={{ maxWidth: 600, mx: 'auto', mt: 4, px: 2 }}>
@@ -67,13 +84,37 @@ export default function Home() {
           >
             <Card variant="outlined" sx={{ cursor: isDragging ? 'grabbing' : 'grab' }}>
               <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2, py: '12px !important' }}>
-                <DragHandleIcon color="action"/>
+                <DragHandleIcon color="action" />
                 <Typography variant="body1">{item.name}</Typography>
               </CardContent>
             </Card>
           </Reorder.Item>
         ))}
       </Reorder.Group>
+
+      {/* NEW: Check Order Button */}
+      <Button
+        variant="contained"
+        fullWidth
+        sx={{ mt: 3 }}
+        onClick={checkOrder}
+      >
+        Check Order
+      </Button>
+
+      {/* NEW: Feedback Messages */}
+      {result === "correct" && (
+        <Alert severity="success" sx={{ mt: 2 }}>
+          Correct order! Nicely done.
+        </Alert>
+      )}
+
+      {result === "incorrect" && (
+        <Alert severity="error" sx={{ mt: 2 }}>
+          Not quite right. Try again.
+        </Alert>
+      )}
+
     </Box>
   );
 };
