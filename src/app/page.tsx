@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import {
   Box, Typography, Card, CardContent,
-  Select, MenuItem, FormControl, InputLabel
+  Select, MenuItem, FormControl, InputLabel, Button, Alert
 } from '@mui/material';
 import DragHandleIcon from '@mui/icons-material/DragHandle';
 import { Reorder } from 'motion/react';
@@ -20,6 +20,17 @@ export default function Home() {
   const { title, description, items } = datasets[selectedIndex];
 
   const [shuffledItems, setShuffledItems] = useState<DatasetItem[]>([]);
+
+  const [feedback, setFeedback] = useState<'correct' | 'incorrect' | null>(null);
+
+const checkOrder = () => {
+  const isCorrect = shuffledItems.every((item, index) => item.order === index + 1);
+  setFeedback(isCorrect ? 'correct' : 'incorrect');
+};
+
+// Reset feedback when user reorders or switches datasets
+useEffect(() => { setFeedback(null); }, [shuffledItems]);
+useEffect(() => { setFeedback(null); }, [selectedIndex]);
 
   useEffect(() => {
     const shuffled = [...items].sort(() => Math.random() - 0.5);
@@ -43,10 +54,26 @@ export default function Home() {
         </Select>
       </FormControl>
 
+
       {/* Title & description from the JSON */}
       <Typography variant="h4" gutterBottom>{title}</Typography>
       <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>        {description}
       </Typography>
+
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
+        <Button variant="contained" onClick={checkOrder} sx={{ mt: 3, mb: 3 }}>
+          Check Order
+        </Button>
+
+        {feedback && (
+          <Alert severity={feedback === 'correct' ? 'success' : 'error'} sx={{ mb: 3 }}>
+            {feedback === 'correct'
+              ? "Correct! Great job! You're a star! "
+              : 'Not quite. Keep rearranging!'}
+          </Alert>
+        )}
+      </Box>
+
 
       {/* Item cards */}
       <Reorder.Group
