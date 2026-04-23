@@ -4,10 +4,18 @@ import { getSupabaseClient } from '@/lib/supabase'
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const name = searchParams.get('name')
-
+    const listOnly = searchParams.get('list') === 'true'
     try {
         const supabase = getSupabaseClient()
+        if (listOnly) {
+            const { data, error } = await supabase
+                .from('datasets')
+                .select('id, dataset_slug, title') // Only select these columns
+                .order('dataset_slug', { ascending: true })
 
+            if (error) throw error
+            return Response.json({ datasets: data })
+         }
         // query param containing name -> return specified dataset
         if (name) {
             const { data: datasetData, error: datasetError } = await supabase
