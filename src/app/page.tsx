@@ -30,6 +30,7 @@ export default function Home() {
   useEffect(() => {
     const shuffled = [...items].sort(() => Math.random() - 0.5);
     setShuffledItems(shuffled);
+    setFeedback(null);
   }, [items]);
 
   const handleCheckOrder = () => {
@@ -50,6 +51,11 @@ export default function Home() {
     }
   };
 
+  const handleReorder = (newOrder: DatasetItem[]) => {
+    setShuffledItems(newOrder);
+    setFeedback(null);
+  };
+
   return (
     <Box sx={{ maxWidth: 600, mx: 'auto', mt: 4, px: 2 }}>
 
@@ -67,6 +73,16 @@ export default function Home() {
         </Select>
       </FormControl>
 
+      <Button variant="contained" onClick={handleCheckOrder} sx={{ mb: 2 }}>
+        Check Order
+      </Button>
+
+      {feedback && (
+        <Alert severity={feedback.severity} sx={{ mb: 3 }}>
+          {feedback.message}
+        </Alert>
+      )}
+
       {/* Title & description from the JSON */}
       <Typography variant="h4" gutterBottom>{title}</Typography>
       <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
@@ -77,7 +93,7 @@ export default function Home() {
       <Reorder.Group
         as="div"
         values={shuffledItems}
-        onReorder={setShuffledItems}
+        onReorder={handleReorder}
         style={{ display: 'flex', flexDirection: 'column', gap: 8 }}
       >
         {shuffledItems.map((item) => (
@@ -98,16 +114,6 @@ export default function Home() {
           </Reorder.Item>
         ))}
       </Reorder.Group>
-
-      <Button variant="contained" onClick={handleCheckOrder} sx={{ mt: 3 }}>
-        Check Order
-      </Button>
-
-      {feedback && (
-        <Alert severity={feedback.severity} sx={{ mt: 2 }}>
-          {feedback.message}
-        </Alert>
-      )}
     </Box>
   );
 };
