@@ -47,22 +47,9 @@ export default function Home() {
 
   const handleCheckOrder = () => {
     if (dataset) {
-      const statuses: Record<string, 'correct' | 'close' | 'wrong'> = {};
-      let correctCount = 0;
-
-      shuffledItems.forEach((item, index) => {
-        const correctIndex = dataset.items.findIndex(d => d.order === item.order);
-        if (correctIndex === index) {
-          statuses[item.name] = 'correct';
-          correctCount++;
-        } else if (Math.abs(correctIndex - index) <= 1) {
-          statuses[item.name] = 'close';
-        } else {
-          statuses[item.name] = 'wrong';
-        }
-      });
-
-      setItemStatuses(statuses);
+      const correctCount = shuffledItems.reduce((count, item, index) => {
+        return item.order === dataset.items[index].order ? count + 1 : count;
+      }, 0);
 
       if (correctCount === dataset.items.length) {
         setFeedback({ severity: 'success', message: 'Correct! You solved the puzzle.' });
@@ -131,7 +118,7 @@ export default function Home() {
       >
         {shuffledItems.map((item) => (
           <Reorder.Item
-            key={item.name}
+            key={item.order}
             value={item}
             as="div"
             style={{ position: 'relative' }}
