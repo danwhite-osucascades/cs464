@@ -22,6 +22,7 @@ export default function Home() {
     severity: 'success' | 'info',
     message: string
   } | null>(null);
+  const [itemStatus,setItemStatus] = useState<Record<number, 'correct' | 'close' | 'wrong' >> ({});
 
   useEffect(() => {
     fetch("/api/titles")
@@ -34,6 +35,7 @@ export default function Home() {
       const shuffled = [...dataset.items].sort(() => Math.random() - 0.5);
       setShuffledItems(shuffled);
       setFeedback(null);
+      setItemStatus({});
     }
 
   }, [dataset]);
@@ -49,9 +51,25 @@ export default function Home() {
 
   const handleCheckOrder = () => {
     if (dataset) {
+      const newItemStatus: Record<number, 'correct' | 'close' | 'wrong'> = {};
       const correctCount = shuffledItems.reduce((count, item, index) => {
-        return item.name === dataset.items[index].name ? count + 1 : count;
+        const distance = Math.abs(item.order - dataset.items[index].order);
+
+        if (distance === 0) {
+          newItemStatus[item.order] = 'correct';
+          return count + 1;
+        }
+
+        if (distance === 1) {
+          newItemStatus[item.order] = 'close';
+          return count;
+        }
+
+        newItemStatus[item.order] = 'wrong';
+        return count;
       }, 0);
+
+      setItemStatus(newItemStatus);
 
       if (correctCount === dataset.items.length) {
         setFeedback({
@@ -70,6 +88,34 @@ export default function Home() {
   const handleReorder = (newOrder: DatasetItem[]) => {
     setShuffledItems(newOrder);
     setFeedback(null);
+    setItemStatus({});
+  };
+
+  const getCardStyles = (item: DatasetItem) => {
+    const status = itemStatus[item.order];
+
+    if (status === 'correct') {
+      return {
+        bgcolor: '#e8f5e9',
+        borderColor: '#4caf50'
+      };
+    }
+
+    if (status === 'close') {
+      return {
+        bgcolor: '#fff8e1',
+        bordercolor: '#fbc02d'
+      };
+    }
+
+    if (status === 'wrong') {
+      return {
+        bgcolor: '#f5f5f5',
+        borderColor: '#9e9e9e'
+      };
+    }
+
+    return {};
   };
 
   return (
@@ -132,7 +178,7 @@ export default function Home() {
             onDragStart={() => setIsDragging(true)}
             onDragEnd={() => setIsDragging(false)}
           >
-            <Card variant="outlined" sx={{ cursor: isDragging ? 'grabbing' : 'grab' }}>
+            <Card variant="outlined" sx={{ cursor: isDragging ? 'grabbing' : 'grab', ...getCardStyles(item) }}>
               <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2, py: '12px !important' }}>
                 <DragHandleIcon color="action" />
                 <Typography variant="body1">{item.name}</Typography>
