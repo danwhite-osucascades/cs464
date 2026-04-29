@@ -1,5 +1,63 @@
-import { Dataset, DatasetDatabaseItem } from '@/types/data'
+import { Dataset, DatasetDatabaseItem, DatasetSchema } from '@/types/data'
 import { getSupabaseClient } from '@/lib/supabase'
+
+export async function POST(request: Request) {
+    try {
+        const body = await request.json();
+	// parses the body via the schema defined in /types/data
+	const validation = DatasetSchema.safeParse(body);
+	if (!validation.success) {
+	    return Response.json(validation.error.format(), {status: 400})
+	}
+        const { title, description, items } = validation.data;
+            const slug = title
+	    .toLowerCase()
+	    .trim()
+	    .replace(/[^\w\s-]/g, '')
+	    .replace(/[\s_-]+/g, '-')
+	    .replace(/^-+|-+$/g, '')
+	const supabase = getSupabaseClient() 
+	const { data: dataset, error: datasetError } = await supabase
+	    .from('datasets')
+	    .insert([{
+	        title,
+		description,
+		dataset_slug: slug
+	    }])
+	    .select()
+	    .single()
+	if (datasetError) {
+	    if (datasetError.code === '23505') {
+	        return Response.json({ error: "A dataset with this title/slug already exists" }, { status: 409 })
+	    }
+	    throw datasetError
+	}
+	const itemsToInsert = items.map((item) => ({
+            dataset_id: dataset.id,
+            item_name: item.name,
+            item_order: item.order,
+        }));
+	const { error: itemsError } = await supabase
+            .from('dataset_items')
+            .insert(itemsToInsert)
+	if (itemsError) {
+        // If items fail, you might want to delete the parent dataset (Manual Rollback)
+            await supabase.from('datasets').delete().eq('id', dataset.id)
+            throw itemsError;
+        }
+        const response = {
+            id: Number(dataset.id), // BIGINT comes back as string or number depending on config
+            dataset_slug: dataset.dataset_slug,
+            title: dataset.title,
+            description: dataset.description,
+            items: items // Return the original T[] array
+        };
+        return Response.json(response, { status: 201 })
+    } catch (error: any) {
+        console.error("Database Error:", error)
+	return Response.json({ error: "Internal server error."}, { status: 500})
+    }
+}
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
