@@ -22,6 +22,7 @@ export default function Home() {
     severity: 'success' | 'info',
     message: string
   } | null>(null);
+  const [itemStatuses, setItemStatuses] = useState<Record<number, { status: 'correct' | 'close' | 'wrong', distance: number }> | null>(null);
 
   useEffect(() => {
     fetch("/api/titles")
@@ -49,20 +50,28 @@ export default function Home() {
 
   const handleCheckOrder = () => {
     if (dataset) {
-      const correctCount = shuffledItems.reduce((count, item, index) => {
-        return item.name === dataset.items[index].name ? count + 1 : count;
-      }, 0);
+      const statuses: Record<number, { status: 'correct' | 'close' | 'wrong', distance: number }> = {};
+      let correctCount = 0;
+
+      shuffledItems.forEach((item, index) => {
+        const correctIndex = item.order - 1;
+        const distance = Math.abs(correctIndex - index);
+        if (distance === 0) {
+          statuses[item.order] = { status: 'correct', distance };
+          correctCount++;
+        } else if (distance === 1) {
+          statuses[item.order] = { status: 'close', distance };
+        } else {
+          statuses[item.order] = { status: 'wrong', distance };
+        }
+      });
+
+      setItemStatuses(statuses);
 
       if (correctCount === dataset.items.length) {
-        setFeedback({
-          severity: 'success',
-          message: 'Correct! You solved the puzzle.'
-        });
+        setFeedback({ severity: 'success', message: 'Correct! You solved the puzzle.' });
       } else {
-        setFeedback({
-          severity: 'info',
-          message: `${correctCount} of ${dataset.items.length} items are in the correct position.`
-        });
+        setFeedback({ severity: 'info', message: `${correctCount} of ${dataset.items.length} items are in the correct position.` });
       }
     }
   };
@@ -70,6 +79,7 @@ export default function Home() {
   const handleReorder = (newOrder: DatasetItem[]) => {
     setShuffledItems(newOrder);
     setFeedback(null);
+    setItemStatuses(null);
   };
 
   return (
@@ -132,10 +142,23 @@ export default function Home() {
             onDragStart={() => setIsDragging(true)}
             onDragEnd={() => setIsDragging(false)}
           >
-            <Card variant="outlined" sx={{ cursor: isDragging ? 'grabbing' : 'grab' }}>
+            <Card variant="outlined" sx={{
+                cursor: isDragging ? 'grabbing' : 'grab',
+                transition: 'background-color 0.3s',
+                bgcolor: itemStatuses
+                  ? itemStatuses[item.order].status === 'correct' ? 'success.light'
+                    : itemStatuses[item.order].status === 'close' ? 'warning.light'
+                    : 'grey.300'
+                  : undefined
+              }}>
               <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2, py: '12px !important' }}>
                 <DragHandleIcon color="action" />
                 <Typography variant="body1">{item.name}</Typography>
+                {itemStatuses && itemStatuses[item.order].status === 'close' && (
+                  <Typography variant="caption" sx={{ ml: 'auto', color: 'warning.dark' }}>
+                    #{itemStatuses[item.order].distance} close
+                  </Typography>
+                )}
               </CardContent>
             </Card>
           </Reorder.Item>
