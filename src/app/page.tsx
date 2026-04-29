@@ -22,6 +22,7 @@ export default function Home() {
     severity: 'success' | 'info',
     message: string
   } | null>(null);
+  const [itemStatuses, setItemStatuses] = useState<('correct' | 'incorrect' | null)[]>([]);
 
   useEffect(() => {
     fetch("/api/titles")
@@ -49,9 +50,13 @@ export default function Home() {
 
   const handleCheckOrder = () => {
     if (dataset) {
-      const correctCount = shuffledItems.reduce((count, item, index) => {
-        return item.name === dataset.items[index].name ? count + 1 : count;
-      }, 0);
+      const statuses: ('correct' | 'incorrect')[] = shuffledItems.map((item, index) => {
+        return item.name === dataset.items[index].name ? 'correct' : 'incorrect';
+      });
+
+      const correctCount = statuses.filter(s => s === 'correct').length;
+
+      setItemStatuses(statuses);
 
       if (correctCount === dataset.items.length) {
         setFeedback({
@@ -69,6 +74,7 @@ export default function Home() {
 
   const handleReorder = (newOrder: DatasetItem[]) => {
     setShuffledItems(newOrder);
+    setItemStatuses([]);
     setFeedback(null);
   };
 
@@ -123,7 +129,7 @@ export default function Home() {
         onReorder={handleReorder}
         style={{ display: 'flex', flexDirection: 'column', gap: 8 }}
       >
-        {shuffledItems.map((item) => (
+        {shuffledItems.map((item, index) => (
           <Reorder.Item
             key={item.order}
             value={item}
@@ -132,7 +138,19 @@ export default function Home() {
             onDragStart={() => setIsDragging(true)}
             onDragEnd={() => setIsDragging(false)}
           >
-            <Card variant="outlined" sx={{ cursor: isDragging ? 'grabbing' : 'grab' }}>
+            <Card
+              variant="outlined"
+              sx={{
+                cursor: isDragging ? 'grabbing' : 'grab',
+                backgroundColor:
+                  itemStatuses[index] === 'correct'
+                    ? '#c8e6c9'
+                    : itemStatuses[index] === 'incorrect'
+                    ? '#ffcdd2'
+                    : 'transparent',
+                transition: 'background-color 0.2s ease'
+              }}
+            >
               <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2, py: '12px !important' }}>
                 <DragHandleIcon color="action" />
                 <Typography variant="body1">{item.name}</Typography>
