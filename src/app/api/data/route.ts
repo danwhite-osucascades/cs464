@@ -45,13 +45,6 @@ export async function POST(request: Request) {
             await supabase.from('datasets').delete().eq('id', dataset.id)
             throw itemsError;
         }
-        const response = {
-            id: Number(dataset.id), 
-            dataset_slug: dataset.dataset_slug,
-            title: dataset.title,
-            description: dataset.description,
-            items: items
-        };
         return Response.json({ links: `/api/data?name=${dataset.title}`}, { status: 201 })
     } catch (error: any) {
         console.error("Database Error:", error)
