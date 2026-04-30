@@ -67,9 +67,7 @@ const getCardColor = (item: DatasetItem, index: number) => {
   if (!checked) {
     return {};
   }
-
   const result = getItemFeedback(item, index);
-
   if (result === 'correct') {
     return {
       bgcolor: '#e8f5e9',
@@ -190,7 +188,7 @@ const getHintDirection = (item: DatasetItem, index: number) => {
       >
         {shuffledItems.map((item, index) => {
           const hintDirection = getHintDirection(item, index);
-          const showHint = checked && hintItemName === item.name && hintDirection;
+          const showHint = checked && hintItemName === item.name && hintDirection !== null;
         
         return (
           <Reorder.Item
