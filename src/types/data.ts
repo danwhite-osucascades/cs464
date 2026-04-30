@@ -11,9 +11,6 @@ export const DatasetSchema = z.object({
     items: z.array(ItemSchema).min(10, "At least 10 items are required."),
 })
 
-// export interface RequestDatasetItem = z.infer<typeof ItemSchema>
-export type RequestDatasetInput = z.infer<typeof DatabaseSchema>
-
 export interface DatasetItem {
     name: string
     order: number

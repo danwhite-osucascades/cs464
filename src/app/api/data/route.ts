@@ -46,13 +46,13 @@ export async function POST(request: Request) {
             throw itemsError;
         }
         const response = {
-            id: Number(dataset.id), // BIGINT comes back as string or number depending on config
+            id: Number(dataset.id), 
             dataset_slug: dataset.dataset_slug,
             title: dataset.title,
             description: dataset.description,
-            items: items // Return the original T[] array
+            items: items
         };
-        return Response.json(response, { status: 201 })
+        return Response.json({ links: `/api/data?name=${dataset.title}`}, { status: 201 })
     } catch (error: any) {
         console.error("Database Error:", error)
 	return Response.json({ error: "Internal server error."}, { status: 500})
