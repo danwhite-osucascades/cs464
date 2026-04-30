@@ -41,11 +41,11 @@ export async function POST(request: Request) {
             .from('dataset_items')
             .insert(itemsToInsert)
 	if (itemsError) {
-        // If items fail, you might want to delete the parent dataset (Manual Rollback)
+        // If items fails delete the parent dataset
             await supabase.from('datasets').delete().eq('id', dataset.id)
             throw itemsError;
         }
-        return Response.json({ links: `/api/data?name=${dataset.title}`}, { status: 201 })
+        return Response.json({ link: `/api/data?name=${dataset.title}`}, { status: 201 })
     } catch (error: any) {
         console.error("Database Error:", error)
 	return Response.json({ error: "Internal server error."}, { status: 500})
