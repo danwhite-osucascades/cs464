@@ -92,3 +92,45 @@ export async function GET(request: Request) {
         return Response.json({ error: 'Failed to fetch datasets' }, { status: 500 })
     }
 }
+
+export async function POST(request: Request) {
+    const body = await request.json().catch(() => null)
+    const { title, dataset_slug, description, items } = body ?? {}
+
+    if (!title || !dataset_slug || !Array.isArray(items) || items.length === 0) {
+        return Response.json({ error: 'title, dataset_slug, and items are required' }, { status: 400 })
+    }
+
+    try {
+        const supabase = getSupabaseClient()
+
+        const { data: dataset, error: datasetError } = await supabase
+            .from('datasets')
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            .insert({ title, dataset_slug, description: description ?? null } as any)
+            .select('id, dataset_slug, title, description')
+            .single()
+
+        if (datasetError) {
+            if (datasetError.code === '23505')
+                return Response.json({ error: `dataset_slug "${dataset_slug}" already exists` }, { status: 409 })
+            throw datasetError
+        }
+
+        const { error: itemsError } = await supabase
+            .from('dataset_items')
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            .insert(items.map((item: { name: string; order: number }) => ({
+                dataset_id: (dataset as Dataset).id,
+                item_name: item.name,
+                item_order: item.order,
+            })) as any)
+
+        if (itemsError) throw itemsError
+
+        return Response.json({ ...(dataset as Dataset), items }, { status: 201 })
+    } catch (error) {
+        console.error('Database error:', error)
+        return Response.json({ error: 'Failed to create dataset' }, { status: 500 })
+    }
+}
