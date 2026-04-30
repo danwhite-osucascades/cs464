@@ -2,6 +2,8 @@
 import { useState, useEffect } from 'react';
 import {
   Box, Typography, Card, CardContent,
+  Select, MenuItem, FormControl, InputLabel,
+  Button, Alert
   Select, MenuItem, FormControl, InputLabel, Button
 } from '@mui/material';
 import DragHandleIcon from '@mui/icons-material/DragHandle';
@@ -15,8 +17,22 @@ import { getItemDirections } from '@/lib/verifyOrder';
 export default function Home() {
   const [datasets, setDatasets] = useState<Dataset[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [dataset, setDataset] = useState<Dataset | null>(null)
+  // const { title, description, items } = datasets[selectedIndex];
+
   const [shuffledItems, setShuffledItems] = useState<DatasetItem[]>([]);
   const [isDragging, setIsDragging] = useState(false);
+  const [datasetMeta, setDatasetMeta] = useState<DatasetMeta[]>([])
+  const [feedback, setFeedback] = useState<{
+    severity: 'success' | 'info',
+    message: string
+  } | null>(null);
+
+  useEffect(() => {
+    fetch("/api/titles")
+      .then((r: Response) => r.json())
+      .then((data: DatasetMeta[]) => setDatasetMeta(data))
+  }, [])
   const [checked, setChecked] = useState(false);
 
   useEffect(() => {
@@ -29,15 +45,47 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (datasets.length === 0) return;
-    const items = datasets[selectedIndex].items;
-    const shuffled = [...items].sort(() => Math.random() - 0.5);
-    setShuffledItems(shuffled);
-    setChecked(false);
-  }, [datasets, selectedIndex]);
+    if (dataset) {
+      const shuffled = [...dataset.items].sort(() => Math.random() - 0.5);
+      setShuffledItems(shuffled);
+      setFeedback(null);
+    }
 
-  const selected = datasets[selectedIndex];
-  const directions = getItemDirections(shuffledItems);
+  }, [dataset]);
+
+  useEffect(() => {
+    if (datasetMeta.length > selectedIndex){
+    fetch(`/api/data?name=${datasetMeta[selectedIndex].dataset_slug}`)
+      .then((r: Response) => r.json())
+      .then((data: Dataset) => setDataset(data))
+    }
+
+  }, [selectedIndex, datasetMeta])
+
+  const handleCheckOrder = () => {
+    if (dataset) {
+      const correctCount = shuffledItems.reduce((count, item, index) => {
+        return item.name === dataset.items[index].name ? count + 1 : count;
+      }, 0);
+
+      if (correctCount === dataset.items.length) {
+        setFeedback({
+          severity: 'success',
+          message: 'Correct! You solved the puzzle.'
+        });
+      } else {
+        setFeedback({
+          severity: 'info',
+          message: `${correctCount} of ${dataset.items.length} items are in the correct position.`
+        });
+      }
+    }
+  };
+
+  const handleReorder = (newOrder: DatasetItem[]) => {
+    setShuffledItems(newOrder);
+    setFeedback(null);
+  };
 
   return (
     <Box sx={{ maxWidth: 600, mx: 'auto', mt: 4, px: 2 }}>
@@ -50,19 +98,35 @@ export default function Home() {
           label="Select a dataset"
           onChange={(e) => setSelectedIndex(Number(e.target.value))}
         >
-          {datasets.map((ds, i) => (
+          {datasetMeta.map((ds, i) => (
             <MenuItem key={i} value={i}>{ds.title}</MenuItem>
           ))}
         </Select>
       </FormControl>
 
+      <Button variant="contained" onClick={handleCheckOrder} sx={{ mb: 2 }}>
+        Check Order
+      </Button>
+
+      <Box sx={{ minHeight: 48, mb: 3 }}>
+        {feedback && (
+          <Alert severity={feedback.severity}>
+            {feedback.message}
+          </Alert>
+        )}
+      </Box>
+
       {/* Title & description */}
       {selected && (
         <>
-          <Typography variant="h4" gutterBottom>{selected.title}</Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-            {selected.description}
-          </Typography>
+          {
+        dataset ?
+          <>
+            <Typography variant="h4" gutterBottom>{dataset.selected.title}</Typography>
+                <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+      
+            {dataset.selected.description}
+                </Typography>
           <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
             <Button
               variant="contained"
@@ -76,6 +140,12 @@ export default function Home() {
             <Typography color="error" sx={{ mb: 2, textAlign: 'center' }}>
               {directions.size} {directions.size === 1 ? 'item is' : 'items are'} out of place
             </Typography>
+          </>
+
+          :
+          <h3> loading... </h3>
+      }
+
           )}
         </>
       )}
@@ -84,12 +154,12 @@ export default function Home() {
       <Reorder.Group
         as="div"
         values={shuffledItems}
-        onReorder={setShuffledItems}
+        onReorder={handleReorder}
         style={{ display: 'flex', flexDirection: 'column', gap: 8 }}
       >
         {shuffledItems.map((item, index) => (
           <Reorder.Item
-            key={item.name}
+            key={item.order}
             value={item}
             as="div"
             style={{ position: 'relative' }}
@@ -98,10 +168,8 @@ export default function Home() {
           >
             <Card variant="outlined" sx={{ cursor: isDragging ? 'grabbing' : 'grab' }}>
               <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2, py: '12px !important' }}>
-                <DragHandleIcon color="action"/>
-                <Typography variant="body1" sx={{ flex: 1 }}>{item.name}</Typography>
-                {checked && directions.get(index) === 'up' && <ArrowUpwardIcon color="error" />}
-                {checked && directions.get(index) === 'down' && <ArrowDownwardIcon color="error" />}
+                <DragHandleIcon color="action" />
+                <Typography variant="body1">{item.name}</Typography>
               </CardContent>
             </Card>
           </Reorder.Item>

@@ -15,3 +15,10 @@ export interface Dataset<T = DatasetItem> {
     description: string | null
     items: T[]
 }
+
+
+export interface DatasetMeta {
+    id: number
+    dataset_slug: string
+    title: string
+}
