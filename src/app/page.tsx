@@ -1,87 +1,54 @@
 'use client';
 import { useState, useEffect } from 'react';
-import {
-  Box, Typography, Card, CardContent,
-  Select, MenuItem, FormControl, InputLabel,
-  Button, Alert
-} from '@mui/material';
-import DragHandleIcon from '@mui/icons-material/DragHandle';
-import { Reorder } from 'motion/react';
+import { Box, Button } from '@mui/material';
 
+import { DatasetDetails } from '@/components/DatasetDetails';
+import { DatasetSelector } from '@/components/DatasetSelector';
+import { OrderFeedback } from '@/components/OrderFeedback';
+import { SortableDatasetList } from '@/components/SortableDatasetList';
+import { evaluateOrder, shuffleDatasetItems } from '@/lib/dataset-order';
 import { Dataset, DatasetItem, DatasetMeta } from '@/types/data';
 
 export default function Home() {
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [dataset, setDataset] = useState<Dataset | null>(null)
-  // const { title, description, items } = datasets[selectedIndex];
+  const [dataset, setDataset] = useState<Dataset | null>(null);
 
   const [shuffledItems, setShuffledItems] = useState<DatasetItem[]>([]);
-  const [isDragging, setIsDragging] = useState(false);
-  const [datasetMeta, setDatasetMeta] = useState<DatasetMeta[]>([])
+  const [datasetMeta, setDatasetMeta] = useState<DatasetMeta[]>([]);
   const [feedback, setFeedback] = useState<{
-    severity: 'success' | 'info',
-    message: string
+    severity: 'success' | 'info';
+    message: string;
   } | null>(null);
 
-  const statusColors = {
-    correct: '#e6f4ea',
-    close: '#fff9e6',
-    wrong: '#f0f0f0',
-    default: 'white',
-  };
-
-  const getItemStatus = (item: DatasetItem, index: number) => {
-    if (!feedback) return 'default';
-    const diff = Math.abs(item.order - (index + 1));
-    if (diff === 0) return 'correct';
-    if (diff <= 2) return 'close';
-    return 'wrong';
-  };
-
+  // Load the list of available dataset titles.
   useEffect(() => {
     fetch("/api/titles")
       .then((r: Response) => r.json())
       .then((data: DatasetMeta[]) => setDatasetMeta(data))
   }, [])
 
-  useEffect(() => {
-    if (dataset) {
-      const shuffled = [...dataset.items].sort(() => Math.random() - 0.5);
-      setShuffledItems(shuffled);
-      setFeedback(null);
-    }
-
-  }, [dataset]);
-
+  // Fetch that dataset and shuffle items.
   useEffect(() => {
     if (datasetMeta.length > selectedIndex){
-    fetch(`/api/data?name=${datasetMeta[selectedIndex].dataset_slug}`)
-      .then((r: Response) => r.json())
-      .then((data: Dataset) => setDataset(data))
+      fetch(`/api/data?name=${datasetMeta[selectedIndex].dataset_slug}`)
+        .then((r: Response) => r.json())
+        .then((data: Dataset) => {
+          setDataset(data);
+          setShuffledItems(shuffleDatasetItems(data.items));
+          setFeedback(null);
+        });
     }
 
   }, [selectedIndex, datasetMeta])
 
+  // Check the current card order against the correct order.
   const handleCheckOrder = () => {
     if (dataset) {
-      const correctCount = shuffledItems.reduce((count, item, index) => {
-        return item.name === dataset.items[index].name ? count + 1 : count;
-      }, 0);
-
-      if (correctCount === dataset.items.length) {
-        setFeedback({
-          severity: 'success',
-          message: 'Correct! You solved the puzzle.'
-        });
-      } else {
-        setFeedback({
-          severity: 'info',
-          message: `${correctCount} of ${dataset.items.length} items are in the correct position.`
-        });
-      }
+      setFeedback(evaluateOrder(shuffledItems, dataset));
     }
   };
 
+  // Clear feedback and update order when the user drags items.
   const handleReorder = (newOrder: DatasetItem[]) => {
     setShuffledItems(newOrder);
     setFeedback(null);
@@ -89,80 +56,25 @@ export default function Home() {
 
   return (
     <Box sx={{ maxWidth: 600, mx: 'auto', mt: 4, px: 2 }}>
-
-      {/* Dropdown */}
-      <FormControl fullWidth sx={{ mb: 3 }}>
-        <InputLabel>Select a dataset</InputLabel>
-        <Select
-          value={selectedIndex}
-          label="Select a dataset"
-          onChange={(e) => setSelectedIndex(Number(e.target.value))}
-        >
-          {datasetMeta.map((ds, i) => (
-            <MenuItem key={i} value={i}>{ds.title}</MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+      <DatasetSelector
+        datasetMeta={datasetMeta}
+        selectedIndex={selectedIndex}
+        onChange={setSelectedIndex}
+      />
 
       <Button variant="contained" onClick={handleCheckOrder} sx={{ mb: 2 }}>
         Check Order
       </Button>
 
-      <Box sx={{ minHeight: 48, mb: 3 }}>
-        {feedback && (
-          <Alert severity={feedback.severity}>
-            {feedback.message}
-          </Alert>
-        )}
-      </Box>
+      <OrderFeedback feedback={feedback} />
 
-      {/* Title & description from the JSON */}
-      {
-        dataset ?
-          <>
-            <Typography variant="h4" gutterBottom>{dataset.title}</Typography>
-            <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-              {dataset.description}
-            </Typography>
-          </>
+      <DatasetDetails dataset={dataset} />
 
-          :
-          <h3> loading... </h3>
-      }
-
-
-      {/* Item cards */}
-      <Reorder.Group
-        as="div"
-        values={shuffledItems}
+      <SortableDatasetList
+        items={shuffledItems}
+        hasFeedback={feedback !== null}
         onReorder={handleReorder}
-        style={{ display: 'flex', flexDirection: 'column', gap: 8 }}
-      >
-        {shuffledItems.map((item) => (
-          <Reorder.Item
-            key={item.order}
-            value={item}
-            as="div"
-            style={{ position: 'relative' }}
-            onDragStart={() => setIsDragging(true)}
-            onDragEnd={() => setIsDragging(false)}
-          >
-            <Card
-              variant="outlined"
-              sx={{
-                cursor: isDragging ? 'grabbing' : 'grab',
-                backgroundColor: statusColors[getItemStatus(item, shuffledItems.indexOf(item))],
-                transition: 'background-color 0.3s ease',
-              }}
-            >
-              <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2, py: '12px !important' }}>
-                <DragHandleIcon color="action" />
-                <Typography variant="body1">{item.name}</Typography>
-              </CardContent>
-            </Card>
-          </Reorder.Item>
-        ))}
-      </Reorder.Group>
+      />
     </Box>
   );
 };
