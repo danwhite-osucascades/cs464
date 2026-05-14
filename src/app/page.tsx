@@ -6,6 +6,7 @@ import DatasetPicker from '@/components/DatasetPicker';
 import FeedbackAlert from '@/components/FeedbackAlert';
 import DatasetHeader from '@/components/DatasetHeader';
 import DraggableDatasetItems from '@/components/DraggableDatasetItems';
+import { shuffleItems } from '@/utils/puzzle';
 
 export default function Home() {
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -31,11 +32,14 @@ export default function Home() {
       .then((data: DatasetMeta[]) => setDatasetMeta(data));
   }, []);
 
+  const shuffleDataset = (items: DatasetItem[]) => {
+    setShuffledItems(shuffleItems(items));
+    setFeedback(null);
+  };
+
   useEffect(() => {
     if (dataset) {
-      const shuffled = [...dataset.items].sort(() => Math.random() - 0.5);
-      setShuffledItems(shuffled);
-      setFeedback(null);
+      shuffleDataset(dataset.items);
     }
   }, [dataset]);
 
@@ -72,6 +76,12 @@ export default function Home() {
     setFeedback(null);
   };
 
+  const handleShuffle = () => {
+    if (dataset) {
+      shuffleDataset(dataset.items);
+    }
+  };
+
   return (
     <Box sx={{ maxWidth: 600, mx: 'auto', mt: 4, px: 2 }}>
       <DatasetPicker
@@ -85,7 +95,7 @@ export default function Home() {
       </Button>
 
       <FeedbackAlert feedback={feedback} />
-      <DatasetHeader dataset={dataset} />
+      <DatasetHeader dataset={dataset} onShuffle={handleShuffle} />
       <DraggableDatasetItems
         shuffledItems={shuffledItems}
         onReorder={handleReorder}
