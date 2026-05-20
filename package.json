@@ -8,6 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "tsc --noEmit && echo 'TypeScript check passed!'",
     "db:start": "supabase start",
     "db:stop": "supabase stop",
     "db:status": "supabase status",
