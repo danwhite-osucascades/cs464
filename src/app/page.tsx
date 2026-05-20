@@ -26,6 +26,17 @@ export default function Home() {
     }
   }, [selectedIndex, datasetMeta]);
 
+  useEffect(() => {
+    if (datasetMeta.length > 0) {
+      const lastDataset = sessionStorage.getItem('lastDataset');
+      if (lastDataset) {
+        const index = datasetMeta.findIndex(d => d.dataset_slug === lastDataset);
+        if (index !== -1) setSelectedIndex(index);
+        sessionStorage.removeItem('lastDataset');
+      }
+    }
+  }, [datasetMeta]);
+  
   return (
     <Box sx={{ maxWidth: 600, mx: 'auto', mt: 4, px: 2 }}>
       <DatasetPicker
@@ -33,7 +44,7 @@ export default function Home() {
         datasetMeta={datasetMeta}
         onSelect={setSelectedIndex}
       />
-      <PuzzleGame dataset={dataset} />
+      <PuzzleGame dataset={dataset} slug={datasetMeta[selectedIndex]?.dataset_slug} />
     </Box>
   );
 }

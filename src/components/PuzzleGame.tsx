@@ -7,18 +7,22 @@ import { Dataset, DatasetItem } from '@/types/data';
 import FeedbackAlert from '@/components/FeedbackAlert';
 import DatasetHeader from '@/components/DatasetHeader';
 import DraggableDatasetItems from '@/components/DraggableDatasetItems';
+import { useRouter } from 'next/navigation';
 
 
 type PuzzleGameProps = {
   dataset: Dataset | null;
+  slug?: string;
 };
 
-export default function PuzzleGame({ dataset }: PuzzleGameProps) {
+export default function PuzzleGame({ dataset, slug }: PuzzleGameProps) {
   const [shuffledItems, setShuffledItems] = useState<DatasetItem[]>([]);
   const [feedback, setFeedback] = useState<{
     severity: 'success' | 'info';
     message: string;
   } | null>(null);
+
+  const router = useRouter();
 
   const getItemStatus = (item: DatasetItem, index: number) => {
     if (!feedback) return 'default';
@@ -80,6 +84,9 @@ export default function PuzzleGame({ dataset }: PuzzleGameProps) {
         </Button>
         <Button variant="contained" component={Link} href="/add">
           Add New Dataset
+        </Button>
+        <Button variant="contained" onClick={() => slug && router.push(`/update/${slug}`)} disabled={!slug}>
+          Edit Dataset
         </Button>
       </Box>
 
