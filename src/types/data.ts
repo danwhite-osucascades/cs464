@@ -13,6 +13,7 @@ export interface Dataset<T = DatasetItem> {
     dataset_slug?: string
     title: string
     description: string | null
+    is_builtin?: boolean
     items: T[]
 }
 
@@ -21,4 +22,5 @@ export interface DatasetMeta {
     id: number
     dataset_slug: string
     title: string
+    is_builtin: boolean
 }

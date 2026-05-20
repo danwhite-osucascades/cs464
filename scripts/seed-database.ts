@@ -60,6 +60,7 @@ async function seedSupabase() {
               dataset_slug,
               title: data.title,
               description: data.description || '',
+              is_builtin: true,
               updated_at: new Date().toISOString(),
             },
             { onConflict: 'dataset_slug' }

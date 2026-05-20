@@ -1,5 +1,6 @@
 import { DatasetMeta } from "@/types/data";
 import { getSupabaseClient } from "@/lib/supabase";
+import { isBuiltinDataset } from "@/lib/builtinDatasets";
 
 export async function GET() {
   try {
@@ -12,7 +13,15 @@ export async function GET() {
 
     if (error) throw error;
 
-    return Response.json(data as DatasetMeta[]);
+    // Check which datasets are built-in
+    const datasetsWithBuiltin = await Promise.all(
+      (data || []).map(async (ds) => ({
+        ...ds,
+        is_builtin: await isBuiltinDataset(ds.dataset_slug)
+      }))
+    );
+
+    return Response.json(datasetsWithBuiltin as DatasetMeta[]);
   } catch (error) {
     console.error("Database error:", error);
     return Response.json(

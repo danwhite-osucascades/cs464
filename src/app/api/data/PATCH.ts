@@ -1,5 +1,6 @@
 import * as z from "zod";
 import { getSupabaseClient } from "@/lib/supabase";
+import { isBuiltinDataset } from "@/lib/builtinDatasets";
 import { NextRequest } from "next/server";
 
 const Data = z.object({
@@ -19,6 +20,12 @@ export async function PATCH(
     const slug = searchParams.get('slug')
     if (slug == null){
       return Response.json({ error: "Missing required query parameter: slug" }, { status: 400 })
+    }
+
+    // Check if dataset is built-in
+    const isBuiltin = await isBuiltinDataset(slug);
+    if (isBuiltin) {
+      return Response.json({ error: "Built-in datasets cannot be edited" }, { status: 403 });
     }
 
     const supabase = getSupabaseClient();

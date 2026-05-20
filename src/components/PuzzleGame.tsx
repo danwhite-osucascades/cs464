@@ -71,7 +71,7 @@ export default function PuzzleGame({ dataset }: PuzzleGameProps) {
 
   return (
     <>
-      <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+      <Box sx={{ display: 'flex', gap: 1, mb: 2, flexWrap: 'wrap' }}>
         <Button variant="contained" onClick={handleCheckOrder}>
           Check Order
         </Button>
@@ -80,6 +80,15 @@ export default function PuzzleGame({ dataset }: PuzzleGameProps) {
         </Button>
         <Button variant="contained" component={Link} href="/add">
           Add New Dataset
+        </Button>
+        <Button
+          variant="contained"
+          component={Link}
+          href={dataset && !dataset.is_builtin ? `/edit/${dataset.dataset_slug}` : '#'}
+          disabled={!dataset || dataset.is_builtin}
+          title={dataset?.is_builtin ? 'Built-in datasets cannot be edited' : 'Edit this dataset'}
+        >
+          Edit Dataset
         </Button>
       </Box>
 

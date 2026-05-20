@@ -1,6 +1,6 @@
 import * as z from "zod";
 import { getSupabaseClient } from "@/lib/supabase";
-import { NextRequest } from "next/server";
+import { isBuiltinDataset } from "@/lib/builtinDatasets";
 
 export async function DELETE(
   request: Request) {
@@ -9,6 +9,12 @@ export async function DELETE(
   const supabase = getSupabaseClient()
 
   if (slug) {
+    // Check if dataset is built-in
+    const isBuiltin = await isBuiltinDataset(slug);
+    if (isBuiltin) {
+      return Response.json({ error: "Built-in datasets cannot be deleted" }, { status: 403 });
+    }
+
     const { data, error } = await supabase
       .from('datasets')
       .delete()

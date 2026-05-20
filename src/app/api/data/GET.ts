@@ -1,5 +1,6 @@
 import { Dataset, DatasetDatabaseItem } from '@/types/data'
 import { getSupabaseClient } from '@/lib/supabase'
+import { isBuiltinDataset } from '@/lib/builtinDatasets'
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
@@ -34,10 +35,14 @@ export async function GET(request: Request) {
                 throw itemsError
             }
 
+            const isBuiltin = await isBuiltinDataset(name)
+
             const dataFile: Dataset = {
                 id: dataset.id,
+                dataset_slug: dataset.dataset_slug,
                 title: dataset.title,
                 description: dataset.description || '',
+                is_builtin: isBuiltin,
                 items: (items || []).map(item => ({
                     name: item.item_name,
                     order: item.item_order
@@ -60,9 +65,13 @@ export async function GET(request: Request) {
         }
 
         const allData: Record<string, Dataset> = {}
+        const builtinSlugs = await Promise.all(
+            datasets.map(ds => isBuiltinDataset(ds.dataset_slug || ''))
+        )
 
         // fetch items for each dataset
-        for (const dataset of datasets || []) {
+        for (let i = 0; i < (datasets || []).length; i++) {
+            const dataset = datasets[i]
             const { data: itemsData, error: itemsError } = await supabase
                 .from('dataset_items')
                 .select('item_name, item_order')
@@ -77,8 +86,10 @@ export async function GET(request: Request) {
 
             allData[dataset.dataset_slug ?? ""] = {
                 id: dataset.id,
+                dataset_slug: dataset.dataset_slug,
                 title: dataset.title,
                 description: dataset.description || '',
+                is_builtin: builtinSlugs[i],
                 items: (items || []).map(item => ({
                     name: item.item_name,
                     order: item.item_order
