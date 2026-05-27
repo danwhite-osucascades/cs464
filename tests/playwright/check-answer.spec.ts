@@ -6,7 +6,7 @@ import { pause } from "./utils/pause"
 
 import { clickButtonByText } from "./utils/interactions"
 
-test.skip('homepage has title', async ({ page }) => {
+test.skip('Check Order Button Works', async ({ page }) => {
   // Go to the site
   await page.goto('http://localhost:3000/puzzle/planets')
 

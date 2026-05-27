@@ -32,13 +32,21 @@ test('homepage has title', async ({ page }) => {
 
 async function puzzleSolver(page: Page) {
 
-  await dragItemToIndex(page, 0, 2) // This will drag the 0th index to where the 2nd index currently is
-
   // You can use this function to click the "Check Order" button, which will highlight the correct choices.
   // You can use the functions below to get the solved, unsolved, or close indices 
-  await clickButtonByText(page, "Check Order")
 
-  return
+  while (!await isPuzzleSolved(page)) {
+    await clickButtonByText(page, "Check Order")
+    await pause(100)
+    const puzzleItems = await getPuzzleItems(page)
+    const unsolved = unsolvedIndices(puzzleItems)
+    if (unsolved.length === 0) {
+      return
+    }
+    await dragItemToIndex(page, unsolved[0], unsolved[unsolved.length - 1])
+
+    await pause(100)
+  }
 
 }
 
@@ -52,14 +60,14 @@ function closeIndices(items: PuzzleItem[]) {
 function correctIndices(items: PuzzleItem[]) {
   return items
     .map((item, index) => ({ item, index }))
-    .filter(x => x.item.state === "close")
+    .filter(x => x.item.state === "correct")
     .map(x => x.index)
 }
 
 function wrongIndices(items: PuzzleItem[]) {
   return items
     .map((item, index) => ({ item, index }))
-    .filter(x => x.item.state !== "wrong")
+    .filter(x => x.item.state === "wrong")
     .map(x => x.index)
 }
 
