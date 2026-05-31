@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
-import { Alert, Box, Button, Card, CardContent, CardHeader, Stack, TextField, Typography } from "@mui/material";
+import { Alert, Box, Button, Stack, TextField, Typography } from "@mui/material"
 import { createBrowserClient } from "@/lib/supabase/createBrowserClient";
 
 export function ForgotPasswordForm({
@@ -34,49 +34,52 @@ export function ForgotPasswordForm({
     }
   };
 
+  if (success) {
+    return (
+      <Box sx={{ maxWidth: 600, mx: 'auto', mt: 4, px: 2 }}>
+        <Typography variant="h4" gutterBottom>Check Your Email</Typography>
+        <Typography variant="body1" color="text.secondary">
+          If you registered using your email and password, you will receive a password reset email shortly.
+        </Typography>
+      </Box>
+    );
+  }
+
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }} className={className} {...props}>
-      {success ? (
-        <Card>
-          <CardHeader
-            title={<Typography variant="h5" component="h1" sx={{ fontWeight: 700 }}>Check Your Email</Typography>}
-            subheader="Password reset instructions sent"
-          />
-          <CardContent>
-            <Typography variant="body2" color="text.secondary">
-              If you registered using your email and password, you will receive a password reset email.
-            </Typography>
-          </CardContent>
-        </Card>
-      ) : (
-        <Card>
-          <CardHeader
-            title={<Typography variant="h5" component="h1" sx={{ fontWeight: 700 }}>Reset Your Password</Typography>}
-            subheader="Type in your email and we'll send you a link to reset your password"
-          />
-          <CardContent>
-            <Stack component="form" spacing={2.5} onSubmit={handleForgotPassword}>
-              <TextField
-                label="Email"
-                id="email"
-                type="email"
-                placeholder="m@example.com"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                fullWidth
-              />
-              {error ? <Alert severity="error">{error}</Alert> : null}
-              <Button type="submit" variant="contained" size="large" disabled={isLoading} fullWidth>
-                {isLoading ? "Sending..." : "Send reset email"}
-              </Button>
-              <Box sx={{ typography: "body2", textAlign: "center", color: "text.secondary" }}>
-                Already have an account? <Link href="/login">Login</Link>
-              </Box>
-            </Stack>
-          </CardContent>
-        </Card>
-      )}
+    <Box sx={{ maxWidth: 600, mx: 'auto', mt: 4, px: 2 }} className={className} {...props}>
+      <Typography variant="h4" gutterBottom>Reset Your Password</Typography>
+      <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+        Enter your email and we'll send you a link to reset your password.
+      </Typography>
+
+      <Stack component="form" spacing={2.5} onSubmit={handleForgotPassword}>
+        <TextField
+          label="Email"
+          type="email"
+          placeholder="cs464@example.com"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          fullWidth
+        />
+
+        {error && <Alert severity="error">{error}</Alert>}
+
+        <Button
+          variant="contained"
+          type="submit"
+          disabled={isLoading}
+          fullWidth
+        >
+          {isLoading ? "Sending..." : "Send Reset Email"}
+        </Button>
+
+        <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center' }}>
+          Already have an account?{' '}
+          <Link href="/login">Login</Link>
+        </Typography>
+      </Stack>
+
     </Box>
   );
 }

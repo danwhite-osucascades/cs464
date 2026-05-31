@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
-import { Alert, Box, Button, Card, CardContent, CardHeader, Stack, TextField, Typography } from "@mui/material";
+import { Alert, Box, Button, Stack, TextField, Typography } from "@mui/material";
 import { createBrowserClient } from "@/lib/supabase/createBrowserClient";
 
 export function SignUpForm({
@@ -47,52 +47,57 @@ export function SignUpForm({
   };
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }} className={className} {...props}>
-      <Card>
-        <CardHeader
-          title={<Typography variant="h5" component="h1" sx={{ fontWeight: 700 }}>Sign up</Typography>}
-          subheader="Create a new account"
+    <Box sx={{ maxWidth: 600, mx: 'auto', mt: 4, px: 2 }} className={className} {...props}>
+      <Typography variant="h4" gutterBottom>Sign Up</Typography>
+      <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+        Create a new account to get started.
+      </Typography>
+
+      <Stack component="form" spacing={2.5} onSubmit={handleSignUp}>
+        <TextField
+          label="Email"
+          type="email"
+          placeholder="cs464@example.com"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          fullWidth
         />
-        <CardContent>
-          <Stack component="form" spacing={2.5} onSubmit={handleSignUp}>
-            <TextField
-              label="Email"
-              id="email"
-              type="email"
-              placeholder="m@example.com"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              fullWidth
-            />
-            <TextField
-              label="Password"
-              id="password"
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              fullWidth
-            />
-            <TextField
-              label="Repeat Password"
-              id="repeat-password"
-              type="password"
-              required
-              value={repeatPassword}
-              onChange={(e) => setRepeatPassword(e.target.value)}
-              fullWidth
-            />
-            {error ? <Alert severity="error">{error}</Alert> : null}
-            <Button type="submit" variant="contained" size="large" disabled={isLoading} fullWidth>
-              {isLoading ? "Creating an account..." : "Sign up"}
-            </Button>
-            <Box sx={{ typography: "body2", textAlign: "center", color: "text.secondary" }}>
-              Already have an account? <Link href="/login">Login</Link>
-            </Box>
-          </Stack>
-        </CardContent>
-      </Card>
+        <TextField
+          label="Password"
+          type="password"
+          required
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          fullWidth
+        />
+        <TextField
+          label="Repeat Password"
+          type="password"
+          required
+          value={repeatPassword}
+          onChange={(e) => setRepeatPassword(e.target.value)}
+          fullWidth
+        />
+
+        {error && <Alert severity="error">{error}</Alert>}
+
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <Button
+            variant="contained"
+            type="submit"
+            disabled={isLoading}
+            fullWidth
+          >
+            {isLoading ? "Creating account..." : "Sign Up"}
+          </Button>
+        </Box>
+
+        <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center' }}>
+          Already have an account?{' '}
+          <Link href="/login">Login</Link>
+        </Typography>
+      </Stack>
     </Box>
   );
 }

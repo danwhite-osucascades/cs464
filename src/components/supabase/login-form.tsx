@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
-import { Alert, Box, Button, Card, CardContent, CardHeader, Stack, TextField, Typography } from "@mui/material";
+import { Alert, Box, Button, Stack, TextField, Typography } from "@mui/material";
 import { createBrowserClient } from "@/lib/supabase/createBrowserClient";
 
 export function LoginForm({
@@ -23,10 +23,7 @@ export function LoginForm({
     setError(null);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
       router.push("/");
     } catch (error: unknown) {
@@ -37,50 +34,85 @@ export function LoginForm({
   };
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }} className={className} {...props}>
-      <Card>
-        <CardHeader
-          title={<Typography variant="h5" component="h1" sx={{ fontWeight: 700 }}>Login</Typography>}
-          subheader="Enter your email below to login to your account"
+    <Box sx={{ maxWidth: 600, mx: 'auto', mt: 4, px: 2 }} className={className} {...props}>
+      
+      <Typography variant="h4" gutterBottom>Login</Typography>
+
+      <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+        Enter your email and password to sign in.
+      </Typography>
+
+      <Stack component="form" spacing={2.5} onSubmit={handleLogin}>
+
+    {/* Can add in if we want header for email */}
+      {/* <Typography variant="body2">
+        Email
+      </Typography> */}
+
+        <TextField
+          label="Email"
+          type="email"
+          placeholder="cs464@example.com"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          fullWidth
         />
-        <CardContent>
-          <Stack component="form" spacing={2.5} onSubmit={handleLogin}>
+        <Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+
+        {/* Can add in if we want header for password */}
+        {/* If added in, change mb: 1 to mb: 2 in box above */}
+          {/* <Typography variant="body2">
+            Password
+          </Typography> */}
+
+          </Box>
             <TextField
-              label="Email"
-              id="email"
-              type="email"
-              placeholder="m@example.com"
+              label="Password"
+              type="password"
               required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               fullWidth
             />
-            <Box>
-              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2, mb: 1 }}>
-                <Typography component="label" htmlFor="password" variant="body2" sx={{ fontWeight: 600 }}>
-                  Password
-                </Typography>
-                <Link href="/auth/forgot-password">Forgot your password?</Link>
-              </Box>
-              <TextField
-                id="password"
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                fullWidth
-              />
-            </Box>
-            {error ? <Alert severity="error">{error}</Alert> : null}
-            <Button type="submit" variant="contained" size="large" disabled={isLoading} fullWidth>
-              {isLoading ? "Logging in..." : "Login"}
-            </Button>
-            <Box sx={{ typography: "body2", textAlign: "center", color: "text.secondary" }}>
-              Don&apos;t have an account? <Link href="/signup">Sign up</Link>
-            </Box>
-          </Stack>
-        </CardContent>
-      </Card>
+        </Box>
+
+
+        {error && <Alert severity="error">{error}</Alert>}
+
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <Button variant="contained" component={Link} href="/auth/sign-up" fullWidth>
+            Sign Up
+          </Button>
+
+          <Button variant="contained" type="submit" disabled={isLoading} fullWidth>
+            {isLoading ? "Logging in..." : "Login"}
+          </Button>
+
+        </Box>
+
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+
+          <Typography variant="body2" color="text.secondary">
+
+            Don&apos;t have an account?{' '}
+            <Link href="/auth/sign-up">
+              Sign up
+            </Link>
+          </Typography>
+
+          <Typography variant="body2" color="text.secondary">
+
+            Forgot your password?{' '}
+            <Link href="/auth/forgot-password">
+              Reset password
+            </Link>
+          </Typography>
+
+        </Box>
+        
+      </Stack>
     </Box>
   );
-}
+};

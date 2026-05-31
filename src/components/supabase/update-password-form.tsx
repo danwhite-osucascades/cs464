@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { Alert, Box, Button, Card, CardContent, CardHeader, Stack, TextField, Typography } from "@mui/material"
 import { useState, type FormEvent } from "react"
+import { Alert, Box, Button, Stack, TextField, Typography } from "@mui/material"
 import { createBrowserClient } from "@/lib/supabase/createBrowserClient"
 import { useRouter } from "next/navigation"
 
@@ -15,7 +15,7 @@ export function UpdatePasswordForm({
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
-  const handleForgotPassword = async (e: FormEvent<HTMLFormElement>) => {
+  const handleUpdatePassword = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsLoading(true)
     setError(null)
@@ -32,31 +32,34 @@ export function UpdatePasswordForm({
   }
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }} className={className} {...props}>
-      <Card>
-        <CardHeader
-          title={<Typography variant="h5" component="h1" sx={{ fontWeight: 700 }}>Reset Your Password</Typography>}
-          subheader="Please enter your new password below."
+    <Box sx={{ maxWidth: 600, mx: 'auto', mt: 4, px: 2 }} className={className} {...props}>
+      <Typography variant="h4" gutterBottom>Reset Your Password</Typography>
+      <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+        Enter your new password below.
+      </Typography>
+
+      <Stack component="form" spacing={2.5} onSubmit={handleUpdatePassword}>
+        <TextField
+          label="New Password"
+          type="password"
+          placeholder="New password"
+          required
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          fullWidth
         />
-        <CardContent>
-          <Stack component="form" spacing={2.5} onSubmit={handleForgotPassword}>
-            <TextField
-              label="New password"
-              id="password"
-              type="password"
-              placeholder="New password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              fullWidth
-            />
-            {error ? <Alert severity="error">{error}</Alert> : null}
-            <Button type="submit" variant="contained" size="large" disabled={isLoading} fullWidth>
-              {isLoading ? "Saving..." : "Save new password"}
-            </Button>
-          </Stack>
-        </CardContent>
-      </Card>
+
+        {error && <Alert severity="error">{error}</Alert>}
+
+        <Button
+          variant="contained"
+          type="submit"
+          disabled={isLoading}
+          fullWidth
+        >
+          {isLoading ? "Saving..." : "Save New Password"}
+        </Button>
+      </Stack>
     </Box>
-  )
+  );
 }
