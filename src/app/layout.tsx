@@ -1,6 +1,6 @@
 import { createServerClient } from "@/lib/supabase/createServerClient"
 import type { Metadata } from "next"
-import { LogoutButton } from "@/components/supabase/logout-button"
+import { AuthControl } from "@/components/supabase/auth-control"
 
 import { APP_TITLE } from "@/constants/app"
 
@@ -20,7 +20,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body>
-        { user ? <LogoutButton /> : <></> }
+        <AuthControl initialUser={Boolean(user)} />
         {children}
       </body>
     </html>
