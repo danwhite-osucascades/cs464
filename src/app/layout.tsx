@@ -1,6 +1,5 @@
-import { createServerClient } from "@/lib/supabase/createServerClient"
 import type { Metadata } from "next"
-import { LogoutButton } from "@/components/supabase/logout-button"
+import { UserNavBar } from "@/components/userNavBar"
 
 import { APP_TITLE } from "@/constants/app"
 
@@ -14,13 +13,10 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const client = await createServerClient()
-  const { data } = await client.auth.getUser()
-  const { user } = data
   return (
     <html lang="en">
       <body>
-        { user ? <LogoutButton /> : <></> }
+        <UserNavBar />
         {children}
       </body>
     </html>
